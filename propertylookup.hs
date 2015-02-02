@@ -111,18 +111,19 @@ main :: IO ()
 main = do
     args <- getArgs
     let [infile, outdir] = args
-	
+
     createDirectoryIfMissing True outdir
     propertyStr <- liftM (map rstrip . lines ) $ readFile infile
     propertiesMaybe <- mapM (\s -> (processRecord outdir s) `catch`
                                    recordErrors) propertyStr
-    
-	let properties = catMaybes propertiesMaybe
+
+
+    let properties = catMaybes propertiesMaybe
     let csv = CSV.encode . V.fromList $ properties
     BS.writeFile (outdir </> "footage.csv") csv
-    
-	where
-		
+
+    where
+
         processRecord :: FilePath -> String -> IO (Maybe Property)
         processRecord outdir str = do
             putStr $ "Processing Record " ++ str
@@ -133,7 +134,7 @@ main = do
             waitForProcess ph
             putStr $ "\n"
             return $ Just p
-			
+
         recordErrors :: PropertyError -> IO (Maybe Property)
         recordErrors e = do
             putStr $ " ! Error: " ++ show e ++ "\n"
